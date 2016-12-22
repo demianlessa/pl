@@ -1,19 +1,32 @@
-repositories {
+allprojects {
+  apply plugin: 'java'
+  
+  group = 'org.lessa'
+  sourceCompatibility = 1.8
+  targetCompatibility = 1.8
+  [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+  task hello << { task -> println "Starting $task.project.name" }
+}
+
+apply plugin: 'eclipse'
+version = '0.0.1'
+
+subprojects {
+  repositories {
     mavenCentral()
+  }
+
+  dependencies {
+    compile 'org.slf4j:slf4j-api:1.7.21'
+    testCompile "org.testng:testng:6.8"
+  }
 }
 
-apply plugin: 'java'
-
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
-
-dependencies {
-    //compile "joda-time:joda-time:2.2"
-    testCompile "testng:testng:6.10"
+project(':lambda') {
+  version = '0.0.3'
 }
 
-jar {
-    baseName = 'pl'
-    version =  '0.1.0'
+project(':turing') {
+  version = '0.0.2'
 }

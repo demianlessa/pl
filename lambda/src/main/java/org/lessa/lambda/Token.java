@@ -1,4 +1,4 @@
-package org.lessa.lambdac;
+package org.lessa.lambda;
 
 public final class Token {
 

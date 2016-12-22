@@ -1,14 +1,14 @@
-package org.lessa.lambdac.examples;
+package org.lessa.lambda.examples;
 
 import java.io.IOException;
 
-import org.lessa.lambdac.Parser;
-import org.lessa.lambdac.Parser.Application;
-import org.lessa.lambdac.Parser.Definition;
-import org.lessa.lambdac.Parser.Function;
-import org.lessa.lambdac.Parser.LambdaVisitor;
-import org.lessa.lambdac.Parser.Name;
-import org.lessa.lambdac.Parser.Program;
+import org.lessa.lambda.Parser;
+import org.lessa.lambda.Parser.Application;
+import org.lessa.lambda.Parser.Definition;
+import org.lessa.lambda.Parser.Function;
+import org.lessa.lambda.Parser.LambdaVisitor;
+import org.lessa.lambda.Parser.Name;
+import org.lessa.lambda.Parser.Program;
 
 public class ParserExample {
 

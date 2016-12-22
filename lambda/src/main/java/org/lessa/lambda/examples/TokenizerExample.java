@@ -1,9 +1,9 @@
-package org.lessa.lambdac.examples;
+package org.lessa.lambda.examples;
 
 import java.io.IOException;
 import java.io.StringReader;
 
-import org.lessa.lambdac.Tokenizer;
+import org.lessa.lambda.Tokenizer;
 
 public class TokenizerExample {
 

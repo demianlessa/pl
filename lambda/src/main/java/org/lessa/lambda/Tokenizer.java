@@ -1,4 +1,4 @@
-package org.lessa.lambdac;
+package org.lessa.lambda;
 
 import java.io.IOException;
 import java.io.Reader;

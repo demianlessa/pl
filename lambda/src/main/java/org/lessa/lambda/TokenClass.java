@@ -1,4 +1,4 @@
-package org.lessa.lambdac;
+package org.lessa.lambda;
 
 public enum TokenClass {
 	CLOSING_PARENS,
