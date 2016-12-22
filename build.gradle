@@ -5,14 +5,14 @@ allprojects {
   sourceCompatibility = 1.8
   targetCompatibility = 1.8
   [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
-
-  task hello << { task -> println "Starting $task.project.name" }
 }
 
 apply plugin: 'eclipse'
 version = '0.0.1'
 
 subprojects {
+  apply plugin: 'checkstyle'
+
   repositories {
     mavenCentral()
   }
@@ -20,6 +20,31 @@ subprojects {
   dependencies {
     compile 'org.slf4j:slf4j-api:1.7.21'
     testCompile "org.testng:testng:6.8"
+  }
+
+  checkstyle {
+    toolVersion = '7.3'
+    configFile = file("${project.rootDir}/config/checkstyle.xml")
+    showViolations = true
+    ignoreFailures = false
+  }
+
+  checkstyleMain {
+    reports {
+        include('**/*.java')
+        html.enabled true
+        html.stylesheet resources.text.fromFile("${project.rootDir}/config/checkstyle-noframes-serverity-sorted.xsl")
+        html.destination "${rootProject.buildDir}/reports/checkstyle-main.html" 
+    }
+  }
+  
+  checkstyleTest {
+    reports {
+        include('**/*.java')
+        html.enabled true
+        html.stylesheet resources.text.fromFile("${project.rootDir}/config/checkstyle-noframes-serverity-sorted.xsl")
+        html.destination "${rootProject.buildDir}/reports/checkstyle-test.html" 
+    }
   }
 }
 

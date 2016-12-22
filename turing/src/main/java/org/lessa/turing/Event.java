@@ -4,39 +4,39 @@ import java.util.List;
 
 public class Event {
 
-	public interface MachineEvent {
+   public interface EventHandler {
 
-		Machine machine();
+      void handle(OnDiverged event);
 
-		String state();
+      void handle(OnHalted event);
 
-		long stateId();
-	}
+      void handle(OnStateChanged event);
 
-	public interface OnDiverged extends MachineEvent {
-		List<Character> symbols();
-	}
+      void handle(OnTransition event);
+   }
 
-	public interface OnHalted extends MachineEvent {
-		List<Character> symbols();
-	}
+   public interface MachineEvent {
 
-	public interface OnStateChanged extends MachineEvent {
-		List<Character> symbols();
-	}
+      Machine machine();
 
-	public interface OnTransition extends MachineEvent {
-		Transition transition();
-	}
+      String state();
 
-	public interface EventHandler {
+      long stateId();
+   }
 
-		void handle(OnDiverged event);
+   public interface OnDiverged extends MachineEvent {
+      List<Character> symbols();
+   }
 
-		void handle(OnHalted event);
+   public interface OnHalted extends MachineEvent {
+      List<Character> symbols();
+   }
 
-		void handle(OnStateChanged event);
+   public interface OnStateChanged extends MachineEvent {
+      List<Character> symbols();
+   }
 
-		void handle(OnTransition event);
-	}
+   public interface OnTransition extends MachineEvent {
+      Transition transition();
+   }
 }

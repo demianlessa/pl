@@ -4,9 +4,9 @@ import java.util.List;
 
 public interface Transition {
 
-	List<Move> moves();
+   List<Move> moves();
 
-	List<Character> outputs();
+   List<Character> outputs();
 
-	String state();
+   String state();
 }

@@ -1,7 +1,7 @@
 package org.lessa.turing;
 
 public enum Move {
-	LEFT,
-	NONE,
-	RIGHT
+   LEFT,
+   NONE,
+   RIGHT
 }
