@@ -2,4 +2,4 @@ language: java
 jdk:
   - oraclejdk8
 before_install:
-  - sudo apt-get update && sudo apt-get gradle
+  - sudo add-apt-repository ppa:cwchien/gradle && sudo apt-get update && sudo apt-get gradle-3.2.1
