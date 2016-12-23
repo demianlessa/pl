@@ -12,6 +12,7 @@ version = '0.0.1'
 
 subprojects {
   apply plugin: 'checkstyle'
+  apply plugin: 'findbugs'
 
   repositories {
     mavenCentral()
@@ -21,29 +22,63 @@ subprojects {
     compile 'org.slf4j:slf4j-api:1.7.21'
     testCompile "org.testng:testng:6.8"
   }
-
+  
   checkstyle {
     toolVersion = '7.3'
-    configFile = file("${project.rootDir}/config/checkstyle.xml")
     showViolations = true
     ignoreFailures = false
+    configFile = file("${project.rootDir}/config/checkstyle.xml")
   }
 
+  findbugs {
+    toolVersion = "3.0.1"
+    ignoreFailures = false
+    reportsDir = file("$project.buildDir/reports")
+    effort = "max"
+    reportLevel = "high"
+    omitVisitors = []
+//    includeFilter = file("$rootProject.projectDir/config/findbugs-includeFilter.xml")
+//    excludeFilter = file("$rootProject.projectDir/config/findbugs-excludeFilter.xml")
+//    excludeBugsFilter = file("$rootProject.projectDir/config/findbugs-excludeBugsFilter.xml")
+  }
+  
   checkstyleMain {
     reports {
         include('**/*.java')
+        xml.enabled false
         html.enabled true
-        html.stylesheet resources.text.fromFile("${project.rootDir}/config/checkstyle-noframes-serverity-sorted.xsl")
-        html.destination "${rootProject.buildDir}/reports/checkstyle-main.html" 
+        html.stylesheet resources.text.fromFile("${project.rootDir}/config/checkstyle.xsl")
+        html.destination "${rootProject.buildDir}/reports/checkstyle-${project.name}-main.html" 
     }
   }
   
   checkstyleTest {
     reports {
         include('**/*.java')
+        xml.enabled false
         html.enabled true
-        html.stylesheet resources.text.fromFile("${project.rootDir}/config/checkstyle-noframes-serverity-sorted.xsl")
-        html.destination "${rootProject.buildDir}/reports/checkstyle-test.html" 
+        html.stylesheet resources.text.fromFile("${project.rootDir}/config/checkstyle.xsl")
+        html.destination "${rootProject.buildDir}/reports/checkstyle-${project.name}-test.html" 
+    }
+  }
+
+  findbugsMain {
+    reports {
+        include('**/*.java')
+        xml.enabled false
+        html.enabled true
+//        html.stylesheet resources.text.fromFile("${project.rootDir}/config/findbugs-noframes-serverity-sorted.xsl")
+        html.destination "${rootProject.buildDir}/reports/findbugs-${project.name}-main.html" 
+    }
+  }
+
+  findbugsTest {
+    reports {
+        include('**/*.java')
+        xml.enabled false
+        html.enabled true
+//        html.stylesheet resources.text.fromFile("${project.rootDir}/config/findbugs-noframes-serverity-sorted.xsl")
+        html.destination "${rootProject.buildDir}/reports/findbugs-${project.name}-test.html" 
     }
   }
 }
