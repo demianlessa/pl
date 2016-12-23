@@ -4,6 +4,8 @@ jdk:
 before_install:
   - sudo add-apt-repository -y ppa:cwchien/gradle 
   - sudo apt-get update 
-  - sudo apt-get install -y gradle-3.2
+  - sudo apt-get install -y gradle-ppa
+  - export PATH=/usr/bin:$PATH
+  - echo $PATH
   - which gradle
   - gradle --version
