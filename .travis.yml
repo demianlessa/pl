@@ -9,3 +9,5 @@ before_install:
   - echo $PATH
   - which gradle
   - gradle --version
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
