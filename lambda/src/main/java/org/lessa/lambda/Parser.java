@@ -168,6 +168,9 @@ public class Parser {
     *
     * @param reader
     *           token reader
+    * @return lambda calculus program
+    * @throws IOException
+    *            if the tokenizer fails to read tokens from the reader
     */
    public Program parse(final Reader reader) throws IOException {
 

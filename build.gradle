@@ -1,6 +1,13 @@
+defaultTasks 'clean', 'build', 'testReport', 'coverage', 'fatJar', 'fatDocs'
+
 allprojects {
-  apply plugin: 'java'
+  apply plugin: 'jacoco' // code coverage
+  apply plugin: 'java'   // java programming
   
+  repositories {
+    mavenCentral()
+  }
+
   group = 'org.lessa'
   sourceCompatibility = 1.8
   targetCompatibility = 1.8
@@ -11,37 +18,34 @@ apply plugin: 'eclipse'
 version = '0.0.1'
 
 subprojects {
-  apply plugin: 'checkstyle'
-  apply plugin: 'findbugs'
-
-  repositories {
-    mavenCentral()
-  }
+  apply plugin: 'checkstyle' // linter
+  apply plugin: 'findbugs'   // static analysis for bugs, security, bad/dangerous idioms
 
   dependencies {
     compile 'org.slf4j:slf4j-api:1.7.21'
-    testCompile "org.testng:testng:6.8"
+    testCompile "org.testng:testng:6.10"
   }
   
   checkstyle {
     toolVersion = '7.3'
     showViolations = true
     ignoreFailures = false
-    configFile = file("${project.rootDir}/config/checkstyle.xml")
+    configFile = file("${rootProject.projectDir}/config/checkstyle.xml")
   }
 
   findbugs {
     toolVersion = "3.0.1"
     ignoreFailures = false
-    reportsDir = file("$project.buildDir/reports")
+    reportsDir = file("${rootProject.projectDir}/reports")
     effort = "max"
     reportLevel = "high"
     omitVisitors = []
-//    includeFilter = file("$rootProject.projectDir/config/findbugs-includeFilter.xml")
-//    excludeFilter = file("$rootProject.projectDir/config/findbugs-excludeFilter.xml")
-//    excludeBugsFilter = file("$rootProject.projectDir/config/findbugs-excludeBugsFilter.xml")
   }
-  
+    
+  jacoco {
+    toolVersion = "0.7.7.201606060606"
+  }
+
   checkstyleMain {
     reports {
         include('**/*.java')
@@ -81,7 +85,40 @@ subprojects {
         html.destination "${rootProject.buildDir}/reports/findbugs-${project.name}-test.html" 
     }
   }
+
+  jacocoTestReport {
+    additionalSourceDirs = files(sourceSets.main.allSource.srcDirs)
+    sourceDirectories = files(sourceSets.main.allSource.srcDirs)
+    classDirectories =  files(sourceSets.main.output)
+    reports {
+      html.enabled = true
+      xml.enabled = true
+      csv.enabled = false
+    }
+    dependsOn test
+  }
+
+  test {
+    // Disable the test report for the individual test task
+    reports.html.enabled = false
+    useTestNG {
+        preserveOrder true
+        groupByInstances true
+    }
+    testLogging {
+        showStandardStreams = true
+        // log results to "build/test-results" directory
+        exceptionFormat "full"
+        // events "started", "passed", "skipped", "failed", "standardOut", "standardError"
+        events "passed", "skipped", "failed", "standardOut", "standardError"
+    }
+  }
 }
+
+
+// ----------------------------------------------------------------------
+// Subproject configurations
+// ----------------------------------------------------------------------
 
 project(':lambda') {
   version = '0.0.3'
@@ -89,4 +126,69 @@ project(':lambda') {
 
 project(':turing') {
   version = '0.0.2'
+}
+
+// ----------------------------------------------------------------------
+// Aggregate test report
+// ----------------------------------------------------------------------
+
+task testReport(type: TestReport) {
+    destinationDir = file("${rootProject.buildDir}/reports/tests") 
+    // Include the results from the `test` task in all subprojects
+    reportOn subprojects*.test
+    dependsOn subprojects.test
+}
+
+// ----------------------------------------------------------------------
+// Aggregate coverage report
+// ----------------------------------------------------------------------
+
+task coverage(type: org.gradle.testing.jacoco.tasks.JacocoReport) {
+    dependsOn = subprojects.jacocoTestReport
+    additionalSourceDirs = files(subprojects.sourceSets.main.allSource.srcDirs)
+    sourceDirectories = files(subprojects.sourceSets.main.allSource.srcDirs)
+    classDirectories =  files(subprojects.sourceSets.main.output)
+    executionData = files(subprojects.jacocoTestReport.executionData)
+    reports {
+        csv.enabled = false
+        html.enabled = true
+        html.destination "${rootProject.buildDir}/reports/coverage" 
+        xml.enabled = false
+    }
+}
+
+// ----------------------------------------------------------------------
+// Aggregate classes and resources from submodules into a single jar
+// ----------------------------------------------------------------------
+
+task fatJar(type: Jar, dependsOn: subprojects.assemble) {
+  manifest {
+    attributes 'Implementation-Title': 'PL all-inclusive jar',
+      'Implementation-Version': project.version
+  }
+  baseName = project.name + '-all'
+  subprojects.each { subproject ->
+    from subproject.configurations.archives.artifacts.files.collect { file ->
+      zipTree(file)
+    }
+  }
+}
+
+// ----------------------------------------------------------------------
+// Javadoc documentation
+// ----------------------------------------------------------------------
+
+// TODO: get special symbols displaying correctly
+
+task fatDocs(type: Javadoc) {
+  def exportedProjects = [":lambda", ":turing"]    
+  source exportedProjects.collect { project(it).sourceSets.main.allJava }
+  classpath = files(exportedProjects.collect { project(it).sourceSets.main.compileClasspath })
+  destinationDir = file("${buildDir}/docs/javadoc")
+  title "Programming Languages API ${version} ⊔▷"
+  options {
+    charSet = 'utf-8'
+    docEncoding = 'utf-8'
+    encoding = 'utf-8'
+  }
 }

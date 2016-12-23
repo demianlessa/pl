@@ -67,6 +67,9 @@ public class TransitionFunctionBuilder {
    /**
     * Creates a builder with the specified number of work+output tapes and an
     * empty transition map.
+    * 
+    * @param numTapes
+    *           number of work+output tapes
     */
    public TransitionFunctionBuilder(int numTapes) {
       this.numTapes = numTapes;
