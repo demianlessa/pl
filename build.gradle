@@ -166,12 +166,13 @@ task coverage(type: org.gradle.testing.jacoco.tasks.JacocoReport) {
         html.enabled = true
         html.destination "${rootProject.buildDir}/reports/coverage" 
         xml.enabled = true
+        xml.destination "${rootProject.buildDir}/reports/coverage/coverage.xml" 
     }
 }
 
 coveralls {
   sourceDirs = subprojects.sourceSets.main.allSource.srcDirs.flatten()
-  jacocoReportPath = "${buildDir}/reports/jacoco/coverage/coverage.xml"
+  jacocoReportPath = "${rootProject.buildDir}/reports/coverage/coverage.xml"
 }
 
 tasks.coveralls {
