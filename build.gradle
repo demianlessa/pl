@@ -1,12 +1,24 @@
 defaultTasks 'clean', 'build', 'testReport', 'coverage', 'fatJar', 'fatDocs'
 
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'net.saliman:gradle-cobertura-plugin:2.0.0'
+        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.7.1'
+    }
+}
+
 allprojects {
-  apply plugin: 'jacoco' // code coverage
-  apply plugin: 'java'   // java programming
-  
   repositories {
     mavenCentral()
   }
+
+  apply plugin: 'com.github.kt3k.coveralls' // code coverage integration with coveralls.io
+  apply plugin: 'jacoco' // code coverage
+  apply plugin: 'java'   // java programming
 
   group = 'org.lessa'
   sourceCompatibility = 1.8
@@ -153,8 +165,21 @@ task coverage(type: org.gradle.testing.jacoco.tasks.JacocoReport) {
         csv.enabled = false
         html.enabled = true
         html.destination "${rootProject.buildDir}/reports/coverage" 
-        xml.enabled = false
+        xml.enabled = true
     }
+}
+
+coveralls {
+  sourceDirs = subprojects.sourceSets.main.allSource.srcDirs.flatten()
+  jacocoReportPath = "${buildDir}/reports/jacoco/coverage/coverage.xml"
+}
+
+tasks.coveralls {
+  group = 'Coverage reports'
+  description = 'Uploads the aggregated coverage report to coveralls.io'
+
+  dependsOn coverage
+  onlyIf { System.env.'CI' && !JavaVersion.current().isJava9Compatible() }
 }
 
 // ----------------------------------------------------------------------
