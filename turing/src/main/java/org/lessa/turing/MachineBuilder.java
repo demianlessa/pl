@@ -72,8 +72,7 @@ public class MachineBuilder {
          int stateId = 0;
 
          String state = initialState();
-         List<Character> tapeHeadSymbols = tapes.stream()
-               .map(tape -> tape.read())
+         List<Character> tapeHeadSymbols = tapes.stream().map(tape -> tape.read())
                .collect(Collectors.toList());
 
          onStateChanged(stateId, state, tapeHeadSymbols);
@@ -86,21 +85,15 @@ public class MachineBuilder {
             }
             onTransition(stateId, state, transition);
             IntStream.range(0, tapes.size())
-                  .forEach(ix -> tapes.get(ix)
-                        .write(transition.outputs()
-                              .get(ix)));
+                  .forEach(ix -> tapes.get(ix).write(transition.outputs().get(ix)));
             IntStream.range(0, tapes.size())
-                  .forEach(ix -> tapes.get(ix)
-                        .move(transition.moves()
-                              .get(ix)));
+                  .forEach(ix -> tapes.get(ix).move(transition.moves().get(ix)));
             state = transition.state();
             if (!states.contains(state)) {
                throw new IllegalArgumentException(
                      String.format("Unrecognized machine state '%s'.", state));
             }
-            tapeHeadSymbols = tapes.stream()
-                  .map(tape -> tape.read())
-                  .collect(Collectors.toList());
+            tapeHeadSymbols = tapes.stream().map(tape -> tape.read()).collect(Collectors.toList());
             onStateChanged(++stateId, state, tapeHeadSymbols);
          }
 
@@ -296,8 +289,7 @@ public class MachineBuilder {
    }
 
    public final MachineBuilder withAlphabetSymbols(final Character... alphabetSymbols) {
-      this.alphabetSymbols = Arrays.stream(alphabetSymbols)
-            .filter(c -> c != null)
+      this.alphabetSymbols = Arrays.stream(alphabetSymbols).filter(c -> c != null)
             .collect(Collectors.toSet());
       return this;
    }
@@ -308,8 +300,7 @@ public class MachineBuilder {
    }
 
    public final MachineBuilder withFinalStates(final String... finalStates) {
-      this.finalStates = Arrays.stream(finalStates)
-            .filter(s -> s != null)
+      this.finalStates = Arrays.stream(finalStates).filter(s -> s != null)
             .collect(Collectors.toSet());
       return this;
    }
@@ -320,8 +311,7 @@ public class MachineBuilder {
    }
 
    public final MachineBuilder withInputSymbols(final Character... inputSymbols) {
-      this.inputSymbols = Arrays.stream(inputSymbols)
-            .filter(s -> s != null)
+      this.inputSymbols = Arrays.stream(inputSymbols).filter(s -> s != null)
             .collect(Collectors.toSet());
       return this;
    }
@@ -342,9 +332,7 @@ public class MachineBuilder {
    }
 
    public final MachineBuilder withStates(final String... states) {
-      this.states = Arrays.stream(states)
-            .filter(s -> s != null)
-            .collect(Collectors.toSet());
+      this.states = Arrays.stream(states).filter(s -> s != null).collect(Collectors.toSet());
       return this;
    }
 

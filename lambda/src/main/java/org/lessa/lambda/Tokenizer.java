@@ -130,8 +130,8 @@ public final class Tokenizer implements ListIterator<Token> {
             // marks the end of a token
             if (tokenStart != -1) {
                final String token = buffer.substring(tokenStart, index);
-               result.add(new Token(TK_DEF.token()
-                     .equals(token) ? TokenClass.DEF : TokenClass.NAME, token));
+               result.add(new Token(TK_DEF.token().equals(token) ? TokenClass.DEF : TokenClass.NAME,
+                     token));
                tokenStart = -1;
             }
          }
@@ -141,8 +141,8 @@ public final class Tokenizer implements ListIterator<Token> {
             // marks the end of a token
             if (tokenStart != -1) {
                final String token = buffer.substring(tokenStart, index);
-               result.add(new Token(TK_DEF.token()
-                     .equals(token) ? TokenClass.DEF : TokenClass.NAME, token));
+               result.add(new Token(TK_DEF.token().equals(token) ? TokenClass.DEF : TokenClass.NAME,
+                     token));
                tokenStart = -1;
             }
             // the symbol is a token of its own
@@ -170,8 +170,8 @@ public final class Tokenizer implements ListIterator<Token> {
       // unterminated token
       if (tokenStart != -1) {
          final String token = buffer.substring(tokenStart, buffer.length());
-         result.add(new Token(TK_DEF.token()
-               .equals(token) ? TokenClass.DEF : TokenClass.NAME, token));
+         result.add(
+               new Token(TK_DEF.token().equals(token) ? TokenClass.DEF : TokenClass.NAME, token));
          tokenStart = -1;
       }
 

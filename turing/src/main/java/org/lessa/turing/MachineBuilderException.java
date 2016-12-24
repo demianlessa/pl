@@ -21,28 +21,23 @@ public class MachineBuilderException extends RuntimeException {
       if (!partToViolation.containsKey(part)) {
          partToViolation.put(part, new ArrayList<>());
       }
-      partToViolation.get(part)
-            .add(message);
+      partToViolation.get(part).add(message);
    }
 
    public boolean hasViolations() {
       return !partToViolation.isEmpty();
    }
 
-   public Map<MachinePart, List<String>> violations() {
-      return Collections.unmodifiableMap(partToViolation);
-   }
-
    @Override
    public String toString() {
       return String.format("%s Violations:%n{%n%s}", getMessage(), partToViolation.entrySet()
             .stream()
-            .map(e -> String.format("  %s: [%s]%n", e.getKey()
-                  .name(),
-                  e.getValue()
-                        .stream()
-                        .map(s -> String.format("\"%s\"", s))
-                        .collect(Collectors.joining(", "))))
+            .map(e -> String.format("  %s: [%s]%n", e.getKey().name(), e.getValue().stream()
+                  .map(s -> String.format("\"%s\"", s)).collect(Collectors.joining(", "))))
             .collect(Collectors.joining("")));
+   }
+
+   public Map<MachinePart, List<String>> violations() {
+      return Collections.unmodifiableMap(partToViolation);
    }
 }

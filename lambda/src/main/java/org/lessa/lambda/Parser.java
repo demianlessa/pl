@@ -190,8 +190,7 @@ public class Parser {
    // ----------------------------------------------------------------------
 
    public Program parse(final String... lines) throws IOException {
-      return parse(new StringReader(Arrays.stream(lines)
-            .collect(Collectors.joining("\n"))));
+      return parse(new StringReader(Arrays.stream(lines).collect(Collectors.joining("\n"))));
    }
 
    private Application application(ListIterator<Token> iterator) {

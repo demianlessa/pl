@@ -17,11 +17,7 @@ public final class LoggingEventHandler implements Event.EventHandler {
    @Override
    public void handle(OnHalted event) {
       System.out.printf("Machine halted with the following contents on its output tape: %s\n",
-            event.machine()
-                  .tapes()
-                  .get(event.machine()
-                        .tapes()
-                        .size() - 1));
+            event.machine().tapes().get(event.machine().tapes().size() - 1));
    }
 
    @Override
@@ -44,10 +40,8 @@ public final class LoggingEventHandler implements Event.EventHandler {
    private void logTransition(long stateId, Transition transition) {
       final String logEntry = String.format(
             "{\"stateId\": %d, \"transition\": {\"nextState\": \"%s\", \"writeToTapes\": %s, \"moves\": %s}}",
-            stateId, transition.state(), Arrays.toString(transition.outputs()
-                  .toArray()),
-            Arrays.toString(transition.moves()
-                  .toArray()));
+            stateId, transition.state(), Arrays.toString(transition.outputs().toArray()),
+            Arrays.toString(transition.moves().toArray()));
       System.out.println(logEntry);
    }
 }
