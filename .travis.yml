@@ -10,5 +10,4 @@ before_install:
   - which gradle
   - gradle --version
 after_success:
-  - gradle coverage coveralls
   - bash <(curl -s https://codecov.io/bash)
