@@ -1,22 +1,10 @@
 defaultTasks 'clean', 'build', 'testReport', 'coverage', 'fatJar', 'fatDocs'
 
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath 'net.saliman:gradle-cobertura-plugin:2.0.0'
-        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.7.1'
-    }
-}
-
 allprojects {
   repositories {
     mavenCentral()
   }
 
-  apply plugin: 'com.github.kt3k.coveralls' // code coverage integration with coveralls.io
   apply plugin: 'jacoco' // code coverage
   apply plugin: 'java'   // java programming
 
@@ -170,19 +158,6 @@ task coverage(type: org.gradle.testing.jacoco.tasks.JacocoReport) {
     }
 }
 
-coveralls {
-  sourceDirs = subprojects.sourceSets.main.allSource.srcDirs.flatten()
-  jacocoReportPath = "${rootProject.buildDir}/reports/coverage/coverage.xml"
-}
-
-tasks.coveralls {
-  group = 'Coverage reports'
-  description = 'Uploads the aggregated coverage report to coveralls.io'
-
-  dependsOn coverage
-  onlyIf { System.env.'CI' && !JavaVersion.current().isJava9Compatible() }
-}
-
 // ----------------------------------------------------------------------
 // Aggregate classes and resources from submodules into a single jar
 // ----------------------------------------------------------------------
@@ -211,7 +186,7 @@ task fatDocs(type: Javadoc) {
   source exportedProjects.collect { project(it).sourceSets.main.allJava }
   classpath = files(exportedProjects.collect { project(it).sourceSets.main.compileClasspath })
   destinationDir = file("${buildDir}/docs/javadoc")
-  title "Programming Languages API ${version} ⊔▷"
+  title "Programming Languages API ${version}"
   options {
     charSet = 'utf-8'
     docEncoding = 'utf-8'
