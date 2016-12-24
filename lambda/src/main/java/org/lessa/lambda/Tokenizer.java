@@ -26,13 +26,31 @@ public final class Tokenizer implements ListIterator<Token> {
    private int tokenIndex;
    private final List<Token> tokens;
 
-   public Tokenizer(final Reader reader) throws IOException {
+   /**
+    * Create a new tokenizer with a reader representing the stream of tokens of
+    * the lambda calculus program source.
+    * 
+    * @param reader
+    *           stream of tokens representing the program
+    * @throws TokenizerException
+    *            if the token stream is invalid
+    */
+   public Tokenizer(final Reader reader) throws TokenizerException {
       this.tokenIndex = 0;
       this.tokens = tokenize(readFrom(reader));
    }
 
-   public Tokenizer(final String expression) throws IOException {
-      this(new StringReader(expression));
+   /**
+    * Create a new tokenizer with a string containing the lambda calculus
+    * program source.
+    * 
+    * @param program
+    *           string containing the program source
+    * @throws TokenizerException
+    *            if the token stream is invalid
+    */
+   public Tokenizer(final String program) throws TokenizerException {
+      this(new StringReader(program));
    }
 
    @Override
@@ -80,7 +98,7 @@ public final class Tokenizer implements ListIterator<Token> {
       tokens.set(tokenIndex, token);
    }
 
-   private Token createSymbolToken(final String token) {
+   private Token createSymbolToken(final String token) throws TokenizerException {
       if (token.equals(TK_DOT.token())) {
          return TK_DOT;
       }
@@ -96,7 +114,7 @@ public final class Tokenizer implements ListIterator<Token> {
       if (token.equals(TK_CLOSING_PARENS.token())) {
          return TK_CLOSING_PARENS;
       }
-      throw new IllegalArgumentException(String.format("Character is not supported: '%s'.", token));
+      throw new TokenizerException(String.format("Character is not supported: '%s'.", token));
    }
 
    private boolean isSupportedSymbol(final int codePoint) {
@@ -104,21 +122,26 @@ public final class Tokenizer implements ListIterator<Token> {
             || codePoint == OPENING_PARENS || codePoint == CLOSING_PARENS;
    }
 
-   private StringBuffer readFrom(Reader reader) throws IOException {
+   private StringBuffer readFrom(final Reader reader) throws TokenizerException {
 
-      final StringBuffer buffer = new StringBuffer();
-      final CharBuffer charBuffer = CharBuffer.allocate(1024);
-      while (reader.read(charBuffer) != -1) {
-         charBuffer.flip();
-         buffer.append(charBuffer);
-         charBuffer.clear();
+      try {
+         final StringBuffer buffer = new StringBuffer();
+         final CharBuffer charBuffer = CharBuffer.allocate(1024);
+         while (reader.read(charBuffer) != -1) {
+            charBuffer.flip();
+            buffer.append(charBuffer);
+            charBuffer.clear();
+         }
+         reader.close();
+
+         return buffer;
       }
-      reader.close();
-
-      return buffer;
+      catch (final IOException ioe) {
+         throw new TokenizerException("Error reading token stream.", ioe);
+      }
    }
 
-   private List<Token> tokenize(StringBuffer buffer) {
+   private List<Token> tokenize(StringBuffer buffer) throws TokenizerException {
 
       final List<Token> result = new ArrayList<>();
 
@@ -155,14 +178,14 @@ public final class Tokenizer implements ListIterator<Token> {
             if (tokenStart == -1) {
                if (!Character.isJavaIdentifierStart(buffer.codePointAt(index))
                      || !Character.isLetter(buffer.codePointAt(index))) {
-                  throw new IllegalArgumentException("Every name must start with a letter.");
+                  throw new TokenizerException("Every name must start with a letter.");
                }
                tokenStart = index;
             }
          }
 
          else {
-            throw new IllegalArgumentException(String.format("Character is not supported: '%s'.",
+            throw new TokenizerException(String.format("Character is not supported: '%s'.",
                   new String(Character.toChars(buffer.codePointAt(index)))));
          }
       }

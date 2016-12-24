@@ -1,7 +1,6 @@
 package org.lessa.lambda;
 
-import java.io.IOException;
-
+import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -11,16 +10,47 @@ public class ParserTest {
       return asLambda ? new PrintVisitors.LambdaPrinter() : new PrintVisitors.PrettyPrinter();
    }
 
-   @Test(dataProvider = "expressions")
-   public void given_valid_lambda_program_parsing_terminates(String... expressions)
-         throws IOException {
-      final Parser.LambdaVisitor pv = createPrinter(true);
-      new Parser().parse(expressions)
-            .accept(pv);
+   // ----------------------------------------------------------------------
+   // Negative cases
+   // ----------------------------------------------------------------------
+
+   @Test(dataProvider = "InvalidProgram")
+   public void given_invalid_program_parsing_throws_exception(String program) {
+      try {
+         new Parser().parse(program);
+         Assert.assertFalse(true,
+               String.format("Should throw an exception on invalid program '%s'.", program));
+      }
+      catch (final ParserException pe) {
+      }
    }
 
-   @DataProvider(name = "expressions")
-   private Object[][] createValidLambdaExpressions() {
+   @DataProvider(name = "InvalidProgram")
+   private Object[][] createInvalidProgram() {
+      return new Object[][] {
+         { "λfirst." },
+         { "λfirst(f a)" },
+         { "λ(f a)" },
+         { "λ.(f a)" },
+         { "λx.x foo" },
+         { ")foo bar(" },
+         { "def λx.x = (f a)" },
+         { "(f a b)" },
+         { "(f a" } };
+   }
+
+   // ----------------------------------------------------------------------
+   // Positive cases
+   // ----------------------------------------------------------------------
+
+   @Test(dataProvider = "ValidProgram")
+   public void given_valid_program_parsing_terminates(String... expressions)
+         throws ParserException {
+      new Parser().parse(expressions).accept(createPrinter(expressions.length > 1));
+   }
+
+   @DataProvider(name = "ValidProgram")
+   private Object[][] createValidProgram() {
       return new Object[][] {
          {
             new String[] {

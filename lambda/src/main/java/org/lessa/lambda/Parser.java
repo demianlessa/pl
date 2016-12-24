@@ -1,6 +1,5 @@
 package org.lessa.lambda;
 
-import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -86,15 +85,6 @@ public class Parser {
       }
    }
 
-   public static class InvalidTokenStream extends RuntimeException {
-
-      private static final long serialVersionUID = -4041232798425895600L;
-
-      public InvalidTokenStream(String message) {
-         super(message);
-      }
-   }
-
    public interface LambdaVisitor {
 
       public void visit(Application node);
@@ -169,31 +159,37 @@ public class Parser {
     * @param reader
     *           token reader
     * @return lambda calculus program
-    * @throws IOException
-    *            if the tokenizer fails to read tokens from the reader
+    * @throws ParserException
+    *            if the {@link Reader} object has an invalid token stream or if
+    *            parsing fails
     */
-   public Program parse(final Reader reader) throws IOException {
+   public Program parse(final Reader reader) throws ParserException {
 
-      final Tokenizer tokenizer = new Tokenizer(reader);
-      final Program program = program(tokenizer);
+      try {
+         final Tokenizer tokenizer = new Tokenizer(reader);
+         final Program program = program(tokenizer);
 
-      if (tokenizer.hasNext()) {
-         throw new InvalidTokenStream(
-               "Expected end of stream but additional tokens found after program.");
+         if (tokenizer.hasNext()) {
+            throw new ParserException(
+                  "Invalid token stream: expected end of stream but additional tokens were found after program.");
+         }
+
+         return program;
       }
-
-      return program;
+      catch (final TokenizerException te) {
+         throw new ParserException("Invalid token stream.", te);
+      }
    }
 
    // ----------------------------------------------------------------------
    // Supporting types
    // ----------------------------------------------------------------------
 
-   public Program parse(final String... lines) throws IOException {
+   public Program parse(final String... lines) throws ParserException {
       return parse(new StringReader(Arrays.stream(lines).collect(Collectors.joining("\n"))));
    }
 
-   private Application application(ListIterator<Token> iterator) {
+   private Application application(ListIterator<Token> iterator) throws TokenizerException {
 
       final Expression lhs = expression(iterator);
       final Expression rhs = expression(iterator);
@@ -202,7 +198,7 @@ public class Parser {
       return new Application(lhs, rhs);
    }
 
-   private Definition definition(ListIterator<Token> iterator) {
+   private Definition definition(ListIterator<Token> iterator) throws TokenizerException {
 
       requireNextToken(iterator, TokenClass.DEF);
       final Token nameToken = requireNextToken(iterator, TokenClass.NAME);
@@ -211,9 +207,9 @@ public class Parser {
       return new Definition(name(nameToken), expression(iterator));
    }
 
-   private Expression expression(ListIterator<Token> iterator) {
+   private Expression expression(ListIterator<Token> iterator) throws TokenizerException {
 
-      final Token token = iterator.next();
+      final Token token = requireNextToken(iterator);
 
       if (token.tokenClass() == TokenClass.NAME) {
          return name(token);
@@ -225,12 +221,12 @@ public class Parser {
          return application(iterator);
       }
 
-      throw new InvalidTokenStream(
-            String.format("Expected a name, function, or application but found token '%s' instead.",
-                  token.token()));
+      throw new TokenizerException(String.format(
+            "Invalid token stream: expected a name, function, or application but found token '%s' instead.",
+            token.token()));
    }
 
-   private Function function(ListIterator<Token> iterator) {
+   private Function function(ListIterator<Token> iterator) throws TokenizerException {
 
       final Token nameToken = requireNextToken(iterator, TokenClass.NAME);
       requireNextToken(iterator, TokenClass.DOT);
@@ -238,47 +234,52 @@ public class Parser {
       return new Function(name(nameToken), expression(iterator));
    }
 
-   private boolean isNextToken(final ListIterator<Token> iterator, final TokenClass tokenClass) {
-
-      if (!iterator.hasNext()) {
-         throw new InvalidTokenStream(String.format(
-               "Unexpected end of stream: expected a token of class '%s'.", tokenClass.name()));
-      }
-
-      final Token token = iterator.next();
-      final boolean result = token.tokenClass() == tokenClass;
-      iterator.previous();
-
-      return result;
-   }
-
    private Name name(Token token) {
       return new Name(token.token());
    }
 
-   private Program program(ListIterator<Token> iterator) {
+   private Program program(ListIterator<Token> iterator) throws TokenizerException {
 
       final List<Definition> definitions = new ArrayList<>();
 
-      while (iterator.hasNext() && isNextToken(iterator, TokenClass.DEF)) {
-         definitions.add(definition(iterator));
+      while (iterator.hasNext()) {
+         final Token next = iterator.next();
+         iterator.previous();
+         if (next.tokenClass() == TokenClass.DEF) {
+            definitions.add(definition(iterator));
+         }
+         else {
+            break;
+         }
       }
 
       return new Program(definitions, iterator.hasNext() ? expression(iterator) : null);
    }
 
-   private Token requireNextToken(final ListIterator<Token> iterator, final TokenClass tokenClass) {
+   private Token requireNextToken(final ListIterator<Token> iterator) throws TokenizerException {
 
       if (!iterator.hasNext()) {
-         throw new InvalidTokenStream(String.format(
-               "Unexpected end of stream: expected a token of class '%s'.", tokenClass.name()));
+         throw new TokenizerException(
+               "Invalid token stream: expected a token but reached the end of stream instead.");
+      }
+
+      return iterator.next();
+   }
+
+   private Token requireNextToken(final ListIterator<Token> iterator, final TokenClass tokenClass)
+         throws TokenizerException {
+
+      if (!iterator.hasNext()) {
+         throw new TokenizerException(String.format(
+               "Invalid token stream: expected a token of class '%s' but reached the end of stream instead.",
+               tokenClass.name()));
       }
 
       final Token token = iterator.next();
       if (tokenClass != token.tokenClass()) {
-         throw new InvalidTokenStream(
-               String.format("Expected token class '%s' but found token '%s' instead.",
-                     tokenClass.name(), token.token()));
+         throw new TokenizerException(String.format(
+               "Invalid token stream: expected token class '%s' but found token '%s' instead.",
+               tokenClass.name(), token.token()));
       }
 
       return token;
