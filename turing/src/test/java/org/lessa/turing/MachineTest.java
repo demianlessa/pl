@@ -1,8 +1,111 @@
 package org.lessa.turing;
 
+import java.util.List;
+import java.util.Map;
+
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class MachineTest {
+
+   // ----------------------------------------------------------------------
+   // Negative cases
+   // ----------------------------------------------------------------------
+
+   @Test
+   public void given_no_arguments_builder_fails_validate() {
+      try {
+         new MachineBuilder().build();
+         Assert.assertFalse(true, "Builder should fail validation!");
+      }
+      catch (final MachineBuilderException mbe) {
+         final Map<MachinePart, List<String>> violations = mbe.violations();
+         Assert.assertEquals(violations.size(), 6);
+      }
+   }
+
+   @Test
+   public void given_blank_input_symbol_builder_fails_validate() {
+      try {
+         new MachineBuilder().withAlphabetSymbols('0')
+               .withInputSymbols(Machine.DEFAULT_BLANK_SYMBOL)
+               .build();
+         Assert.assertFalse(true, "Builder should fail validation!");
+      }
+      catch (final MachineBuilderException mbe) {
+         final Map<MachinePart, List<String>> violations = mbe.violations();
+         Assert.assertEquals(violations.size(), 5);
+      }
+   }
+
+   @Test
+   public void given_input_symbol_not_in_alphabet_builder_fails_validate() {
+      try {
+         new MachineBuilder().withAlphabetSymbols('0')
+               .withInputSymbols('1')
+               .build();
+         Assert.assertFalse(true, "Builder should fail validation!");
+      }
+      catch (final MachineBuilderException mbe) {
+         final Map<MachinePart, List<String>> violations = mbe.violations();
+         Assert.assertEquals(violations.size(), 5);
+      }
+   }
+
+   @Test
+   public void given_empty_states_initial_state_and_final_states_builder_fails_validate() {
+      try {
+         new MachineBuilder().withAlphabetSymbols('0', '1')
+               .withInputSymbols('0')
+               .withStates()
+               .withInitialState("")
+               .withFinalStates()
+               .build();
+         Assert.assertFalse(true, "Builder should fail validation!");
+      }
+      catch (final MachineBuilderException mbe) {
+         System.out.println(mbe.toString());
+         final Map<MachinePart, List<String>> violations = mbe.violations();
+         Assert.assertEquals(violations.size(), 4);
+      }
+   }
+
+   @Test
+   public void given_empty_states_and_null_initial_state_and_final_states_builder_fails_validate() {
+      try {
+         new MachineBuilder().withAlphabetSymbols('0', '1')
+               .withInputSymbols('0')
+               .withStates()
+               .build();
+         Assert.assertFalse(true, "Builder should fail validation!");
+      }
+      catch (final MachineBuilderException mbe) {
+         System.out.println(mbe.toString());
+         final Map<MachinePart, List<String>> violations = mbe.violations();
+         Assert.assertEquals(violations.size(), 4);
+      }
+   }
+
+   @Test
+   public void given_invalid_initial_and_final_states_builder_fails_validate() {
+      try {
+         new MachineBuilder().withAlphabetSymbols('0', null, '1')
+               .withInputSymbols('0', null)
+               .withStates("S0", "S1", null, "S2")
+               .withFinalStates("F0", null, "F1")
+               .build();
+         Assert.assertFalse(true, "Builder should fail validation!");
+      }
+      catch (final MachineBuilderException mbe) {
+         System.out.println(mbe.toString());
+         final Map<MachinePart, List<String>> violations = mbe.violations();
+         Assert.assertEquals(violations.size(), 3);
+      }
+   }
+
+   // ----------------------------------------------------------------------
+   // Positive cases
+   // ----------------------------------------------------------------------
 
    /**
     * Single tape machine, no input, simulates a constant function that outputs

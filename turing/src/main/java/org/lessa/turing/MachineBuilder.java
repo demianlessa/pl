@@ -15,7 +15,6 @@ public class MachineBuilder {
    private static class MachineImpl implements Machine {
 
       private final Set<Character> alphabetSymbols;
-
       private final Character blankSymbol;
       private final Set<String> finalStates;
       private final String initialState;
@@ -267,14 +266,17 @@ public class MachineBuilder {
     * new {@link Machine} object.
     *
     * @return machine
+    * @throws MachineBuilderException
+    *            if any machine part fails validation
     */
-   public final Machine build() {
+   public final Machine build() throws MachineBuilderException {
+
+      // validate machine parts
+      validate();
 
       // the blank and start symbols must always exist in the alphabet
       alphabetSymbols.add(blankSymbol);
       alphabetSymbols.add(startSymbol);
-
-      validate();
 
       final List<Tape> tapes = new ArrayList<>();
 
@@ -295,6 +297,7 @@ public class MachineBuilder {
 
    public final MachineBuilder withAlphabetSymbols(final Character... alphabetSymbols) {
       this.alphabetSymbols = Arrays.stream(alphabetSymbols)
+            .filter(c -> c != null)
             .collect(Collectors.toSet());
       return this;
    }
@@ -306,6 +309,7 @@ public class MachineBuilder {
 
    public final MachineBuilder withFinalStates(final String... finalStates) {
       this.finalStates = Arrays.stream(finalStates)
+            .filter(s -> s != null)
             .collect(Collectors.toSet());
       return this;
    }
@@ -317,6 +321,7 @@ public class MachineBuilder {
 
    public final MachineBuilder withInputSymbols(final Character... inputSymbols) {
       this.inputSymbols = Arrays.stream(inputSymbols)
+            .filter(s -> s != null)
             .collect(Collectors.toSet());
       return this;
    }
@@ -338,6 +343,7 @@ public class MachineBuilder {
 
    public final MachineBuilder withStates(final String... states) {
       this.states = Arrays.stream(states)
+            .filter(s -> s != null)
             .collect(Collectors.toSet());
       return this;
    }
@@ -352,69 +358,71 @@ public class MachineBuilder {
       return this;
    }
 
-   private void validate() {
-      // NOTE: any validation errors lead to an immediate invalid argument
-      // exception
+   private void validate() throws MachineBuilderException {
 
-      // alphabetSymbols: not null, not empty
-      if (alphabetSymbols == null || alphabetSymbols.isEmpty()) {
-         throw new IllegalArgumentException(
-               "The alphabet symbols must be a non-null, non empty array of characters.");
-      }
+      final MachineBuilderException mbe = new MachineBuilderException(
+            "Invalid arguments to MachineBuilder.");
 
-      // blankSymbol: not null
-      if (blankSymbol == null) {
-         throw new IllegalArgumentException("The blank symbol must be a non-null alphabet symbol.");
-      }
-
-      // blankSymbol: contained in alphabetSymbols
-      if (!alphabetSymbols.contains(blankSymbol)) {
-         throw new IllegalArgumentException(
-               "The blank symbol must belong to the set of alphabet symbols.");
+      // alphabetSymbols: not null
+      if (alphabetSymbols == null) {
+         mbe.addViolation(MachinePart.ALPHABET, "The alphabet must be a non-null set of symbols.");
       }
 
       // inputSymbols: not null
       if (inputSymbols == null) {
-         throw new IllegalArgumentException(
-               "The input symbols must be a non-null set of alphabet symbols.");
+         mbe.addViolation(MachinePart.INPUT_SYMBOLS,
+               "The input symbols must be a non-null set of symbols.");
+      }
+      // inputSymbols: contains blank symbol
+      else if (inputSymbols.contains(blankSymbol)) {
+         mbe.addViolation(MachinePart.INPUT_SYMBOLS,
+               "The input symbols must not contains the special blank symbol.");
       }
 
       // inputSymbols: contained in alphabetSymbols
-      if (!alphabetSymbols.containsAll(inputSymbols)) {
-         throw new IllegalArgumentException(
-               "The input symbols must belong to the set of alphabet symbols.");
+      if (!mbe.hasViolations() && !alphabetSymbols.containsAll(inputSymbols)) {
+         mbe.addViolation(MachinePart.INPUT_SYMBOLS,
+               "Every input symbol must belong to the set of alphabet symbols.");
       }
 
       // states: not null, not empty
       if (states == null || states.isEmpty()) {
-         throw new IllegalArgumentException(
-               "The states set must be a non-null, non empty array of states.");
+         mbe.addViolation(MachinePart.STATES,
+               "The states set must be a non-null, non empty set of strings.");
       }
 
       // initialState: not null
-      if (transitionFunction == null) {
-         throw new IllegalArgumentException("The initial state must be a non-null state.");
+      if (initialState == null || initialState.isEmpty()) {
+         mbe.addViolation(MachinePart.INITIAL_STATE,
+               "The initial state must be a non-null, non-empty string.");
       }
 
       // states: contains initial state
-      if (!states.contains(initialState)) {
-         throw new IllegalArgumentException("The initial state must belong to the states set.");
+      if (states != null && initialState != null && !states.contains(initialState)) {
+         mbe.addViolation(MachinePart.INITIAL_STATE,
+               "The initial state must belong to the states set.");
       }
 
       // finalStates: not null, not empty
       if (finalStates == null || finalStates.isEmpty()) {
-         throw new IllegalArgumentException(
-               "The final states set must be a non-null, non empty array of states.");
+         mbe.addViolation(MachinePart.FINAL_STATES,
+               "The final states set must be a non-null, non empty set of strings.");
       }
 
       // states: contains final states
-      if (!states.containsAll(finalStates)) {
-         throw new IllegalArgumentException("The final states must belong to the states set.");
+      if (states != null && finalStates != null && !states.containsAll(finalStates)) {
+         mbe.addViolation(MachinePart.FINAL_STATES,
+               "The final states set must be contained in the states set.");
       }
 
       // transitionFunction: not null
       if (transitionFunction == null) {
-         throw new IllegalArgumentException("The transition map must be a non-null map.");
+         mbe.addViolation(MachinePart.TRANSTION_FUNCTION,
+               "The transition function must be non-null.");
+      }
+
+      if (mbe.hasViolations()) {
+         throw mbe;
       }
    }
 }
