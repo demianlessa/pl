@@ -4,11 +4,10 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+/**
+ * Tests for basic parser operation.
+ */
 public class ParserTest {
-
-   private static Parser.LambdaVisitor createPrinter(boolean asLambda) {
-      return asLambda ? new PrintVisitors.LambdaPrinter() : new PrintVisitors.PrettyPrinter();
-   }
 
    // ----------------------------------------------------------------------
    // Negative cases
@@ -46,20 +45,13 @@ public class ParserTest {
    @Test(dataProvider = "ValidProgram")
    public void given_valid_program_parsing_terminates(String... expressions)
          throws ParserException {
-      new Parser().parse(expressions).accept(createPrinter(expressions.length > 1));
+      new Parser().parse(expressions);
    }
 
    @DataProvider(name = "ValidProgram")
    private Object[][] createValidProgram() {
       return new Object[][] {
-         {
-            new String[] {
-               "def identity = λx.x",
-               "def self_apply = λs.(s s)",
-               "def apply = λfunc.λarg.(func arg)",
-               "def select_first = λfirst.λsecond.first",
-               "def select_second = λfirst.λsecond.second",
-               "def make_pair = λfirst.λsecond.λfunc.((func first) second)" } },
+         { "name" },
          { "λfirst.λsecond.first" },
          { "λf.λa.(f a)" },
          { "(λx.x λa.λb.b)" },
@@ -69,6 +61,15 @@ public class ParserTest {
          { "(λS.(S S) λx.x)" },
          { "(λS.(S S) λS.(S S))" },
          { "λfunc.λarg.(func arg)" },
-         { "((λfunc.λarg.(func arg) λx.x) λS.(S S))" } };
+         { "((λfunc.λarg.(func arg) λx.x) λS.(S S))" },
+         {
+            new String[] {
+               "def identity = λx.x",
+               "def self_apply = λs.(s s)",
+               "def apply = λfunc.λarg.(func arg)",
+               "def select_first = λfirst.λsecond.first",
+               "def select_second = λfirst.λsecond.second",
+               "def make_pair = λfirst.λsecond.λfunc.((func first) second)" } }
+         };
    }
 }

@@ -6,6 +6,9 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+/**
+ * Tests for basic tokenizer operation.
+ */
 public class TokenizerTest {
 
    // ----------------------------------------------------------------------
@@ -56,6 +59,7 @@ public class TokenizerTest {
    @DataProvider(name = "ValidTokenStreams")
    private Object[][] createValidTokenStreams() {
       return new Object[][] {
+         { "tokens", 1 },
          { "my tokens", 2 },
          { "def name = λ.my", 6 },
          { "def . name = λ.my", 7 },

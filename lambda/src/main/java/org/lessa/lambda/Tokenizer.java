@@ -80,7 +80,7 @@ public final class Tokenizer implements ListIterator<Token> {
 
    @Override
    public Token previous() {
-      return tokens.get(tokenIndex--);
+      return tokens.get(--tokenIndex);
    }
 
    @Override
