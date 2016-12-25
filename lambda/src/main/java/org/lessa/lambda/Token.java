@@ -52,9 +52,4 @@ public final class Token {
    public TokenClass tokenClass() {
       return tokenClass;
    }
-
-   @Override
-   public String toString() {
-      return String.format("%s('%s')", tokenClass, token);
-   }
 }
