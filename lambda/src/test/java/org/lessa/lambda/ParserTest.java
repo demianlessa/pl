@@ -21,6 +21,7 @@ public class ParserTest {
                String.format("Should throw an exception on invalid program '%s'.", program));
       }
       catch (final ParserException pe) {
+         Assert.assertTrue(true);
       }
    }
 
@@ -34,6 +35,7 @@ public class ParserTest {
          { "λx.x foo" },
          { ")foo bar(" },
          { "def λx.x = (f a)" },
+         { "def my_def_name = λx.x def my_def_name = (f a)" },
          { "(f a b)" },
          { "(f a" } };
    }
@@ -61,6 +63,8 @@ public class ParserTest {
          { "(λS.(S S) λx.x)" },
          { "(λS.(S S) λS.(S S))" },
          { "λfunc.λarg.(func arg)" },
+         { "λfunc.λarg.(λfunc.func λarg.(func arg))" },
+         { "λfunc.(λarg.(λfunc.(λfunc.(λarg.arg λarg.func) λfunc.func) func) func)" },
          { "((λfunc.λarg.(func arg) λx.x) λS.(S S))" },
          {
             new String[] {
@@ -69,7 +73,6 @@ public class ParserTest {
                "def apply = λfunc.λarg.(func arg)",
                "def select_first = λfirst.λsecond.first",
                "def select_second = λfirst.λsecond.second",
-               "def make_pair = λfirst.λsecond.λfunc.((func first) second)" } }
-         };
+               "def make_pair = λfirst.λsecond.λfunc.((func first) second)" } } };
    }
 }

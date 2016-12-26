@@ -27,7 +27,7 @@ public class TokenizerTest {
          Assert.assertFalse(true, "Should throw an exception on a bad expression.");
       }
       catch (final TokenizerException te) {
-
+         Assert.assertTrue(true);
       }
    }
 

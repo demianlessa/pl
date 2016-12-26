@@ -118,7 +118,8 @@ public class Parser {
       return factory.createName(token.token());
    }
 
-   private Program program(ListIterator<Token> iterator) throws TokenizerException {
+   private Program program(ListIterator<Token> iterator)
+         throws TokenizerException, ParserException {
 
       final List<Definition> definitions = new ArrayList<>();
 
@@ -133,7 +134,13 @@ public class Parser {
          }
       }
 
-      return factory.createProgram(definitions, iterator.hasNext() ? expression(iterator) : null);
+      try {
+         return factory.createProgram(definitions,
+               iterator.hasNext() ? expression(iterator) : null);
+      }
+      catch (final IllegalArgumentException iae) {
+         throw new ParserException("Invalid program.", iae);
+      }
    }
 
    private Token requireNextToken(final ListIterator<Token> iterator) throws TokenizerException {

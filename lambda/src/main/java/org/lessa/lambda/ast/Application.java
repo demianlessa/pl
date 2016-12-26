@@ -1,7 +1,7 @@
 package org.lessa.lambda.ast;
 
 /**
- * An AST node representing a lambda calculus application:
+ * An AST node representing a lambda calculus application.
  * 
  * <pre>
  * application ::= '(' expression expression ')'

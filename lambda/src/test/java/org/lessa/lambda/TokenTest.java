@@ -64,6 +64,7 @@ public class TokenTest {
          { TK_DEF, null, false },
          { TK_DEF, new Token(TokenClass.DEF, "not_def"), false },
          { TK_DEF, new Token(TokenClass.DEF, null), false },
+         { new Token(TokenClass.DEF, null), TK_DEF, false },
          { TK_DEF, new Token(TokenClass.NAME, "def"), false },
          { TK_DEF, "def", false }, };
    }

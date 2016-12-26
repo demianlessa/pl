@@ -7,5 +7,5 @@ public interface AstNode {
 
    void accept(AstVisitor visitor);
 
-   boolean isBound(String variableName);
+   boolean isBound(String name);
 }
