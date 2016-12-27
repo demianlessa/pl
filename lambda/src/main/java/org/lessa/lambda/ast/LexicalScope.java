@@ -4,9 +4,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class LexicalScope {
+final class LexicalScope {
 
-   public static final LexicalScope EMPTY_SCOPE;
+   static final LexicalScope EMPTY_SCOPE;
 
    static {
       EMPTY_SCOPE = new LexicalScope(Collections.emptyMap(), Collections.emptyMap());
@@ -25,15 +25,15 @@ public final class LexicalScope {
       this.variables = variables;
    }
 
-   LexicalScope copy() {
-      return new LexicalScope(new HashMap<>(definitions), new HashMap<>(variables));
-   }
-
-   public Map<String, AstNode> definitions() {
+   Map<String, AstNode> definitions() {
       return definitions;
    }
 
-   public Map<String, AstNode> variables() {
+   Map<String, AstNode> variables() {
       return variables;
+   }
+
+   LexicalScope copy() {
+      return new LexicalScope(new HashMap<>(definitions), new HashMap<>(variables));
    }
 }

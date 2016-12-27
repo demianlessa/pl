@@ -49,7 +49,7 @@ public class BoundVariableTest {
          { "def fugitive = λf.f λshort.λsharp.λshock.fugitive", "short", true },
          { "def fugitive = λf.f λshort.λsharp.λshock.fugitive", "sharp", true },
          { "def fugitive = λf.f λshort.λsharp.λshock.fugitive", "shock", true },
-         { "def fugitive = λf.f", "fugitive", false },
-         { "def fugitive = λf.f", "f", false }, };
+         { "def fugitive = λf.f program", "fugitive", false },
+         { "def fugitive = λf.f program", "f", false }, };
    }
 }

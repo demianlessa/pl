@@ -18,7 +18,7 @@ import org.lessa.lambda.ast.Program;
 
 public class Parser {
 
-   private AstNodeFactory factory;
+   private final AstNodeFactory factory;
 
    public Parser() {
       this.factory = new AstNodeFactory();
@@ -28,7 +28,7 @@ public class Parser {
     * Grammar:
     *
     * <pre>
-    * program     ::= definition* expression?
+    * program     ::= definition* expression
     * definition  ::= 'def' name '=' expression
     * expression  ::= name | function | application
     * name        ::= &lt;non-blank character sequence&gt;
@@ -50,8 +50,8 @@ public class Parser {
          final Program program = program(tokenizer);
 
          if (tokenizer.hasNext()) {
-            throw new ParserException(
-                  "Invalid token stream: expected end of stream but additional tokens were found after program.");
+            throw new TokenizerException(
+                  "Expected end of stream but additional tokens were found after program.");
          }
 
          return program;
@@ -70,20 +70,16 @@ public class Parser {
    }
 
    private Application application(ListIterator<Token> iterator) throws TokenizerException {
-
       final Expression lhs = expression(iterator);
       final Expression rhs = expression(iterator);
       requireNextToken(iterator, TokenClass.CLOSING_PARENS);
-
       return factory.createApplication(lhs, rhs);
    }
 
    private Definition definition(ListIterator<Token> iterator) throws TokenizerException {
-
       requireNextToken(iterator, TokenClass.DEF);
       final Token nameToken = requireNextToken(iterator, TokenClass.NAME);
       requireNextToken(iterator, TokenClass.EQUALS);
-
       return factory.createDefinition(name(nameToken), expression(iterator));
    }
 
@@ -101,16 +97,14 @@ public class Parser {
          return application(iterator);
       }
 
-      throw new TokenizerException(String.format(
-            "Invalid token stream: expected a name, function, or application but found token '%s' instead.",
-            token.token()));
+      throw new TokenizerException(
+            String.format("Expected name, function, or application but found token '%s' instead.",
+                  token.token()));
    }
 
    private Function function(ListIterator<Token> iterator) throws TokenizerException {
-
       final Token nameToken = requireNextToken(iterator, TokenClass.NAME);
       requireNextToken(iterator, TokenClass.DOT);
-
       return factory.createFunction(name(nameToken), expression(iterator));
    }
 
@@ -123,9 +117,15 @@ public class Parser {
 
       final List<Definition> definitions = new ArrayList<>();
 
+      // a program might have a list of definitions
       while (iterator.hasNext()) {
+
+         // consume one token
          final Token next = iterator.next();
+
+         // put back one token
          iterator.previous();
+
          if (next.tokenClass() == TokenClass.DEF) {
             definitions.add(definition(iterator));
          }
@@ -134,9 +134,14 @@ public class Parser {
          }
       }
 
+      // a program must have an expression-- consume one token
+      requireNextToken(iterator);
+
+      // put back one token
+      iterator.previous();
+
       try {
-         return factory.createProgram(definitions,
-               iterator.hasNext() ? expression(iterator) : null);
+         return factory.createProgram(definitions, expression(iterator));
       }
       catch (final IllegalArgumentException iae) {
          throw new ParserException("Invalid program.", iae);
@@ -144,12 +149,9 @@ public class Parser {
    }
 
    private Token requireNextToken(final ListIterator<Token> iterator) throws TokenizerException {
-
       if (!iterator.hasNext()) {
-         throw new TokenizerException(
-               "Invalid token stream: expected a token but reached the end of stream instead.");
+         throw new TokenizerException("Expected a token but reached the end of stream instead.");
       }
-
       return iterator.next();
    }
 
@@ -158,15 +160,15 @@ public class Parser {
 
       if (!iterator.hasNext()) {
          throw new TokenizerException(String.format(
-               "Invalid token stream: expected a token of class '%s' but reached the end of stream instead.",
+               "Expected a token of class '%s' but reached the end of stream instead.",
                tokenClass.name()));
       }
 
       final Token token = iterator.next();
       if (tokenClass != token.tokenClass()) {
-         throw new TokenizerException(String.format(
-               "Invalid token stream: expected token class '%s' but found token '%s' instead.",
-               tokenClass.name(), token.token()));
+         throw new TokenizerException(
+               String.format("Expected token class '%s' but found token '%s' instead.",
+                     tokenClass.name(), token.token()));
       }
 
       return token;

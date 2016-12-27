@@ -32,6 +32,6 @@ public class AstPrinterTest {
          { "λx.x" },
          { "(x y)" },
          { "def apply = λfunc.λarg.(func arg)\n(apply apply)" },
-         { "def identity = λx.x\ndef apply = λfunc.λarg.(func arg)" } };
+         { "def identity = λx.x\ndef apply = λfunc.λarg.(func arg)\nidentity" } };
    }
 }

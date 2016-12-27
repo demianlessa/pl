@@ -25,6 +25,16 @@ public class ParserTest {
       }
    }
 
+   @Test(dataProvider = "ValidProgram")
+   public void given_valid_program_parsing_terminates(String... expressions)
+         throws ParserException {
+      new Parser().parse(expressions);
+   }
+
+   // ----------------------------------------------------------------------
+   // Positive cases
+   // ----------------------------------------------------------------------
+
    @DataProvider(name = "InvalidProgram")
    private Object[][] createInvalidProgram() {
       return new Object[][] {
@@ -34,20 +44,11 @@ public class ParserTest {
          { "λ.(f a)" },
          { "λx.x foo" },
          { ")foo bar(" },
+         { "def name = λx.x" },
          { "def λx.x = (f a)" },
          { "def my_def_name = λx.x def my_def_name = (f a)" },
          { "(f a b)" },
          { "(f a" } };
-   }
-
-   // ----------------------------------------------------------------------
-   // Positive cases
-   // ----------------------------------------------------------------------
-
-   @Test(dataProvider = "ValidProgram")
-   public void given_valid_program_parsing_terminates(String... expressions)
-         throws ParserException {
-      new Parser().parse(expressions);
    }
 
    @DataProvider(name = "ValidProgram")
@@ -73,6 +74,7 @@ public class ParserTest {
                "def apply = λfunc.λarg.(func arg)",
                "def select_first = λfirst.λsecond.first",
                "def select_second = λfirst.λsecond.second",
-               "def make_pair = λfirst.λsecond.λfunc.((func first) second)" } } };
+               "def make_pair = λfirst.λsecond.λfunc.((func first) second)",
+               "(make_pair (a b))" } } };
    }
 }

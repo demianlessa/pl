@@ -31,15 +31,6 @@ public class TokenizerTest {
       }
    }
 
-   @DataProvider(name = "InvalidTokenStreams")
-   private Object[][] createInvalidTokenStream() {
-      return new Object[][] { { "<" }, { "12" }, { "_" } };
-   }
-
-   // ----------------------------------------------------------------------
-   // Positive cases
-   // ----------------------------------------------------------------------
-
    @Test(dataProvider = "ValidTokenStreams")
    public void given_valid_token_stream_tokenizer_returns_correct_number_of_tokens(
          String expression, int expectedTokens) throws TokenizerException {
@@ -54,6 +45,15 @@ public class TokenizerTest {
       }
 
       Assert.assertFalse(tokenizer.hasNext());
+   }
+
+   // ----------------------------------------------------------------------
+   // Positive cases
+   // ----------------------------------------------------------------------
+
+   @DataProvider(name = "InvalidTokenStreams")
+   private Object[][] createInvalidTokenStream() {
+      return new Object[][] { { "<" }, { "12" }, { "_" } };
    }
 
    @DataProvider(name = "ValidTokenStreams")

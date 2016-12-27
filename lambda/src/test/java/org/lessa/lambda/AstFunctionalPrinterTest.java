@@ -33,9 +33,13 @@ public class AstFunctionalPrinterTest {
          { "(λy.z w)", "Application(Function(Name(y), Name(z)), Name(w))" },
          {
             "def apply = λfunc.λarg.(func arg)\n(apply apply)",
-            "DefinitionList(Definition(Name(apply), Function(Name(func), Function(Name(arg), Application(Name(func), Name(arg))))))\nApplication(Name(apply), Name(apply))" },
+            "DefinitionList(Definition(Name(apply), Function(Name(func), "
+                  + "Function(Name(arg), Application(Name(func), Name(arg))))))\n"
+                  + "Application(Name(apply), Name(apply))" },
          {
-            "def identity = λx.x\ndef apply = λfunc.λarg.(func arg)",
-            "DefinitionList(Definition(Name(identity), Function(Name(x), Name(x))), Definition(Name(apply), Function(Name(func), Function(Name(arg), Application(Name(func), Name(arg))))))" } };
+            "def identity = λx.x\ndef apply = λfunc.λarg.(func arg)\nidentity",
+            "DefinitionList(Definition(Name(identity), Function(Name(x), Name(x))), "
+                  + "Definition(Name(apply), Function(Name(func), Function(Name(arg), "
+                  + "Application(Name(func), Name(arg))))))\nName(identity)" } };
    }
 }

@@ -8,20 +8,20 @@ import java.io.UnsupportedEncodingException;
  * Prints the original lambda calculus program to the {@link PrintStream}
  * specified in the constructor.
  */
-class AstPrinter implements AstVisitor {
+class AstPrinterVisitor implements AstVisitor {
 
    private final PrintStream out;
 
-   AstPrinter(final OutputStream out, String charset) throws UnsupportedEncodingException {
+   AstPrinterVisitor(final OutputStream out, String charset) throws UnsupportedEncodingException {
       this.out = new PrintStream(out, true, charset);
    }
 
    @Override
    public void visit(Application node) {
       out.print("(");
-      node.leftExpression().accept(this);
+      node.function().accept(this);
       out.print(" ");
-      node.rightExpression().accept(this);
+      node.argument().accept(this);
       out.print(")");
    }
 
@@ -36,7 +36,7 @@ class AstPrinter implements AstVisitor {
    @Override
    public void visit(Function node) {
       out.print("λ");
-      node.name().accept(this);
+      node.boundVariable().accept(this);
       out.print(".");
       node.body().accept(this);
       out.print("");
@@ -44,7 +44,7 @@ class AstPrinter implements AstVisitor {
 
    @Override
    public void visit(Name node) {
-      out.print(node.name());
+      out.print(node.value());
    }
 
    @Override

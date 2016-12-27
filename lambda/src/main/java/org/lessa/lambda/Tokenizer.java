@@ -29,7 +29,7 @@ public final class Tokenizer implements ListIterator<Token> {
    /**
     * Create a new tokenizer with a reader representing the stream of tokens of
     * the lambda calculus program source.
-    * 
+    *
     * @param reader
     *           stream of tokens representing the program
     * @throws TokenizerException
@@ -43,7 +43,7 @@ public final class Tokenizer implements ListIterator<Token> {
    /**
     * Create a new tokenizer with a string containing the lambda calculus
     * program source.
-    * 
+    *
     * @param program
     *           string containing the program source
     * @throws TokenizerException
